@@ -5,17 +5,33 @@ import { PortalShell } from '@/components/PortalShell';
 import { Section, StatusPill } from '@/components/UI';
 import { teacherAttendance } from '@/lib/data';
 
-const tones: Record<string, 'success' | 'warn' | 'danger'> = {
+type AttendanceStatus = 'Present' | 'Late' | 'Absent';
+
+type AttendanceRow = {
+  name: string;
+  rollNo: string;
+  status: AttendanceStatus;
+};
+
+const tones: Record<AttendanceStatus, 'success' | 'warn' | 'danger'> = {
   Present: 'success',
   Late: 'warn',
-  Absent: 'danger'
+  Absent: 'danger',
 };
 
 export default function TeacherAttendancePage() {
-  const [rows, setRows] = useState(teacherAttendance.map((row) => ({ ...row })));
+  const [rows, setRows] = useState<AttendanceRow[]>(
+    teacherAttendance.map((row) => ({
+      name: row.name,
+      rollNo: row.rollNo,
+      status: row.status as AttendanceStatus,
+    }))
+  );
 
-  const updateStatus = (index: number, status: 'Present' | 'Late' | 'Absent') => {
-    setRows((current) => current.map((row, idx) => idx === index ? { ...row, status } : row));
+  const updateStatus = (index: number, status: AttendanceStatus) => {
+    setRows((current) =>
+      current.map((row, idx) => (idx === index ? { ...row, status } : row))
+    );
   };
 
   return (
@@ -30,7 +46,10 @@ export default function TeacherAttendancePage() {
           <div className="card">
             <p className="eyebrow">Summary</p>
             <h3>{rows.filter((row) => row.status === 'Present').length} Present</h3>
-            <p>{rows.filter((row) => row.status === 'Absent').length} absent · {rows.filter((row) => row.status === 'Late').length} late</p>
+            <p>
+              {rows.filter((row) => row.status === 'Absent').length} absent ·{' '}
+              {rows.filter((row) => row.status === 'Late').length} late
+            </p>
           </div>
         </div>
       </Section>
